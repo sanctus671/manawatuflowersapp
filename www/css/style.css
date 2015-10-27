@@ -1,0 +1,55 @@
+html{
+    font-family:"Lato", Roboto,'Helvetica Neue',sans-serif !important;
+}
+
+.bar.bar-header .button+.title {
+    text-align: center;
+    left: 0;
+}
+
+h3{
+    padding-left:20px;
+}
+
+.remaining-btn{
+    float: right;
+}
+
+.item.item-input{
+        padding: 6px 0 13px 16px;
+}
+
+.item-title{
+    font-weight:bold;
+    margin-right:10px;
+}
+
+.input-label{
+    font-weight:bold;
+}
+
+.upcoming{
+        border-right: 1px solid rgba(204, 204, 204, 0.5);
+}
+
+.current-previous{
+    padding:0px;
+}
+
+.current-row{
+    padding:0px;
+   border-bottom: 1px solid rgba(204, 204, 204, 0.5);
+}
+
+.current{
+    padding:10px
+}
+
+.previous{
+    padding:10px;
+    padding-top:20px;
+}
+
+.error{
+    color:red !important;
+}

@@ -1,0 +1,105 @@
+<ion-view view-title="Manawatu Flowers - Auction">
+  <ion-content>
+
+    <ion-refresher
+    pulling-text="Pull to refresh..."
+    on-refresh="doRefresh()">
+    </ion-refresher>
+
+      <div class="row responsive-md">
+        <div class="col col-33 upcoming">
+              <h3>Upcoming Auctions</h3>           
+            <div class="list">
+            <li class="item item-checkbox">
+                 <label class="checkbox">
+                   <input type="checkbox" ng-model="settings.autoload">
+                 </label>
+                 Auto load auctions sequentially
+              </li>   
+            </div>
+            <ion-list class="list animate-ripple">
+              <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="upcomingAuction in upcomingAuctions" ng-if="upcomingAuction.qty_available > 0" ng-show="!upcomingAuction.hideItem" ng-click="loadAuction(upcomingAuction)" type="item-text-wrap">
+                  <img class="stock-thumbnail" ng-if="upcomingAuction.image_small" ng-src="data:image/jpg;base64,{{upcomingAuction.image_small | no_false}}">
+                    <h2>{{upcomingAuction.name}}</h2>
+                    <p>{{upcomingAuction.qty_available_text}}</p>
+                    <i class="icon ion-chevron-right icon-accessory"></i>
+                <ion-option-button class="button-assertive" ng-click="upcomingAuction.hideItem = true">
+                  Hide
+                </ion-option-button>
+              </ion-item>
+            </ion-list>        
+   
+        </div>
+        <div class="col current-previous">
+            <div class="row current-row">
+                <div class="col current">
+                    <h3>Current Auction</h3>
+                    <div class="row">
+                        <div class="col">
+                            <div class="list">
+                              <label class="item">
+                                  <span class="item-title">Stock:</span> {{currentAuctionItem.name}}
+                              </label>
+                              <label class="item">
+                                  <span class="item-title">Notes:</span> {{getNote(currentAuctionItem.id)}}
+                              </label>
+                              <label class="item">
+                                  <span class="item-title">Quantity Remaining:</span> {{currentAuctionItem.qty_available - auctionResult.quantity}}
+                                  <button class="button button-small button-flat button-energized remaining-btn" ng-click="passRemaining()">Pass In Remaining</button>
+                              </label>
+
+                                
+                            </div> 
+                        </div>
+                        <form class="col" name="auctionForm">
+                                <div class="list">
+                              <label class="item item-input">
+                                <span class="input-label">Price</span>
+                                <input type="number" placeholder="Enter Price" name ="price" ng-model="auctionResult.price">
+                              </label>
+                              <label class="item item-input ">
+                                <span class="input-label">Quantity</span>
+                                <input type="number" placeholder="Enter Quantity" name="quantity" ng-class="{error:!auctionForm.quantity.$valid}" max="{{currentAuctionItem.qty_available}}" ng-model="auctionResult.quantity">
+                              </label>
+                            <label class="item item-input item-select">
+                                <div class="input-label">
+                                  Buyer:
+                                </div>
+                                <select ng-model="auctionResult.buyer">
+                                  <option selected disabled>Select Buyer</option>
+                                  <option ng-repeat="partner in partners" value="{{partner.id}}">{{partner.name}}</option>
+                                </select>
+                              </label>                                    
+                                  
+                            </div>                        
+                        </form>
+                        
+                    </div>
+                    <div class="row">
+                        <button class="button button-block button-flat button-energized" ng-click="saveAuction()">Save Auction</button>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col previous">
+                    <h3>Previous Auctions</h3>
+                    <ion-list class="list animate-ripple">
+                      <ion-item class="item-remove-animate item-avatar" ng-repeat="previousAuction in previousAuctions.slice().reverse()" ng-show="!hideItem" type="item-text-wrap" ng-click="viewPreviousAuction(previousAuction)">
+                        <img class="stock-thumbnail" ng-if="previousAuction.product.image_small" ng-src="data:image/jpg;base64,{{previousAuction.product.image_small | no_false}}">
+                        <h2>{{previousAuction.product.name}}</h2>
+                        <p>{{previousAuction.result.quantity}}</p>
+
+                        <ion-option-button class="button-assertive" ng-click="hideItem = true">
+                          Hide
+                        </ion-option-button>
+                      </ion-item>
+                    </ion-list>                      
+                </div>
+            </div>            
+        </div>          
+      </div>
+      
+
+  </ion-content>
+</ion-view>
