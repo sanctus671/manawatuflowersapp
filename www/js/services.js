@@ -69,6 +69,22 @@ angular.module('app.services', [])
         return window.localStorage.user ? JSON.parse(window.localStorage.user) : null;
     }
     
+    this.sendResults = function(collated,notSold, partners){
+        var OdooService = this;
+        var user = OdooService.getUser();
+        var deferred = $q.defer();
+        $http.post(WEB_API_URL, {auction:true,results:true, args:{"collated": collated, "notSold":notSold, "partners":partners}, sessionid:user.session_id})
+        .then(function(response) {
+            console.log(response);
+            deferred.resolve(response);
+            }, function(response) {
+                console.log(response);
+                deferred.reject(response);
+            });
+        
+        return deferred.promise;           
+    }
+    
     this.getAllData = function(type, page, limit, order){
         var offset = page*limit - limit;
         var deferred = $q.defer();

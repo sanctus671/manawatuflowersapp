@@ -65,7 +65,7 @@
                                 <div class="input-label">
                                   Buyer:
                                 </div>
-                                <select ng-model="auctionResult.buyer">
+                                <select id="buyer-select" ng-model="auctionResult.buyer">
                                   <option selected disabled>Select Buyer</option>
                                   <option ng-repeat="partner in partners" value="{{partner.id}}">{{partner.name}}</option>
                                 </select>
@@ -83,12 +83,12 @@
             </div>
             <div class="row">
                 <div class="col previous">
-                    <h3>Previous Auctions</h3>
+                    <h3>Previous Auctions</h3> <button class="button button-small button-flat button-energized send-btn" ng-disabled="partners.length < 1" ng-click="sendResults()" >Send Results</button>
                     <ion-list class="list animate-ripple">
-                      <ion-item class="item-remove-animate item-avatar" ng-repeat="previousAuction in previousAuctions.slice().reverse()" ng-show="!hideItem" type="item-text-wrap" ng-click="viewPreviousAuction(previousAuction)">
+                      <ion-item class="item-remove-animate item-avatar" ng-repeat="previousAuction in previousAuctions.slice().reverse()" ng-show="!hideItem" type="item-text-wrap" ng-click="viewPreviousAuction(previousAuction)" ng-class="{'is-today':isToday(previousAuction.date)}">
                         <img class="stock-thumbnail" ng-if="previousAuction.product.image_small" ng-src="data:image/jpg;base64,{{previousAuction.product.image_small | no_false}}">
                         <h2>{{previousAuction.product.name}}</h2>
-                        <p>{{previousAuction.result.quantity}}</p>
+                        <p>{{previousAuction.result.quantity}} For {{previousAuction.result.price | currency}}</p>
 
                         <ion-option-button class="button-assertive" ng-click="hideItem = true">
                           Hide

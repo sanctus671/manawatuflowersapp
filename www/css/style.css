@@ -53,3 +53,30 @@ h3{
 .error{
     color:red !important;
 }
+
+.previous{
+    position:relative;
+}
+
+.send-btn{
+        position: absolute;
+    right: 0px;
+    z-index: 999;
+    top: 20px;
+}
+
+.is-today.item-complex .item-content::after{
+    content: '\f2fc';
+    font-family: Ionicons;
+    position: absolute;
+    top: 20px;
+    right: 2em;
+    font-size: .7em;
+    background: #00BCD4;
+    color: white;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 18px;
+    border-radius: 50%; 
+}

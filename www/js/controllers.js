@@ -10,8 +10,9 @@ angular.module('app.controllers', [])
         $scope.auctionResult = {};
         $scope.previousAuctions = [];
         $scope.products = [];
-        $scope.partners = {};
-        $scope.settings = {}
+        $scope.partners = [];
+        $scope.stock = [];
+        $scope.settings = {};
         $scope.settings.autoload = true;
     };	
     OdooService.logout();
@@ -42,7 +43,14 @@ angular.module('app.controllers', [])
         }).then(function(){
             OdooService.getAllData('res.partner', 1, 999, '-id').then(function(response){
                 $scope.partners = response.data;
-            })            
+            }).then(function(){
+                OdooService.getAllData('stock.move', 1, 999, '-id').then(function(response){
+                    $scope.stock = response.data;  
+                    $scope.stock.sort(function(a,b){
+                        return b.id - a.id;
+                    })
+                })            
+            });
         });
         
 
@@ -56,20 +64,34 @@ angular.module('app.controllers', [])
     };
     
     $scope.getNote = function(productId){
-        if (productId){
-            return "This is a note for: " + productId;
+        if (productId && $scope.stock.length > 0){
+            for (var index in $scope.stock){
+                var stock = $scope.stock[index];
+                if (stock.product_id[0] === (productId + 4) && stock.state === "done"){
+                    return stock.x_notes ? stock.x_notes : "";
+                }
+            }
+            return "";
         }
     };
+    
+    $scope.isToday = function(date){
+        return moment().diff(date, 'days') <= 0;
+    }
     
     $scope.getPreviousAuctions = function(){
         return AuctionService.getPreviousAuctions();
     }
     
     $scope.viewPreviousAuction = function(auction){
-        console.log(auction);
         $ionicPopup.alert({
              title: 'Auction Details',
-             template: '' + auction.result.quantity + ''
+             template: "<strong>Order ID:</strong> " + auction.result.orderid + "<br>" +
+                     "<strong>Buyer:</strong> " + auction.result.buyerName + " (ID: " + auction.result.buyer + ")" + "<br>" +
+                     "<strong>Date:</strong> " + moment(auction.result.date).format('LLL') + "<br>" + 
+                     "<strong>Product ID:</strong> " + auction.result.productid  + "<br>" + 
+                     "<strong>Quantity:</strong> " + auction.result.quantity  + "<br>" + 
+                     "<strong>Price:</strong> $" + auction.result.price  + "<br>"
            });       
     }
     
@@ -85,7 +107,7 @@ angular.module('app.controllers', [])
         OdooService.addData('sale.order',$scope.convertForOdoo(order), order.result.buyer).then(function(data){ //create order
             console.log(data);
             order.orderid = data.data.data.result;
-            
+            auctionResult.orderid = order.orderid;
             $scope.previousAuctions.push(order); 
             AuctionService.addPreviousAuction(order); //save in local storage
             $timeout(function(){ionicMaterialMotion.ripple();}); 
@@ -145,7 +167,10 @@ angular.module('app.controllers', [])
         if ($scope.currentAuctionItem.length < 1 || !$scope.auctionResult.quantity || !$scope.auctionResult.price || !$scope.auctionResult.buyer){return;}
         
         
-        
+        $scope.auctionResult.date = new Date();
+        console.log($scope.auctionResult);console.log($scope.currentAuctionItem);
+        $scope.auctionResult.productid = $scope.currentAuctionItem.id;
+        $scope.auctionResult.buyerName = document.getElementById('buyer-select').options[document.getElementById("buyer-select").selectedIndex].text;
         $scope.createOrder(angular.copy($scope.currentAuctionItem), angular.copy($scope.auctionResult));
 
         $scope.currentAuctionItem.qty_available -= $scope.auctionResult.quantity;
@@ -164,6 +189,57 @@ angular.module('app.controllers', [])
             }
         }
     };
+    
+    
+    $scope.sendResults = function(){
+        //collate all previous auctions which are dated with todays date
+        //make call to odoo to get partner info for all growers (sellers)
+        //somehow send email out to them with details of auction (probably through api)
+        var upcoming = angular.copy($scope.upcomingAuctions);
+        var previous = angular.copy($scope.previousAuctions);
+        var collated = {};
+        var notSold = {};
+        var partners = [];
+        console.log(upcoming);
+        console.log(previous);
+        for (var index in previous){ //collate previous auctions from today
+            var auction = previous[index];
+            var auctionDate = moment(auction.result.date);
+            if (moment().diff(auctionDate, 'days') <= 0){ //check that the auction was today
+                
+                    for(var index in $scope.partners){
+                        if ($scope.partners[index].id === parseInt(auction.result.buyer)){
+                            if (partners.indexOf($scope.partners[index].email) < 0){
+                                partners.push($scope.partners[index].email);
+                            }
+                            break;
+                        }
+                    }
+
+                
+                collated[auction.product.name] ? collated[auction.product.name].push(auction.result) : collated[auction.product.name] = [auction.result];
+            }
+        }
+        for (var index in upcoming){ //get all the not sold items (ie if there is still stock remaining)
+            var item = upcoming[index];
+            if (item.qty_available > 0){
+                notSold[item.name] = {productid:item.id, quantity:item.qty_available};
+            }
+        }
+        
+        console.log(collated);
+        console.log(notSold);  
+        console.log(partners); 
+        //send away to api to be email
+        OdooService.sendResults(collated,notSold, partners).then(function(){
+            $ionicPopup.alert({
+                title: 'Success',
+                template: 'Results have been sent to growers'
+            });  
+        });
+
+        
+    }
    
     
     init();
