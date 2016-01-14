@@ -25,6 +25,7 @@ angular.module('app.controllers', [])
 
     
     $scope.doRefresh = function(){
+        angular.element(".upcoming-item").css({"transition" : "all .3s ease-in-out"});
         $ionicLoading.show({
               template: 'Loading...'
             });         
@@ -75,6 +76,11 @@ angular.module('app.controllers', [])
         }
     };
     
+    $scope.onReorder = function (fromIndex, toIndex) {
+        var moved = $scope.upcomingAuctions.splice(fromIndex, 1);
+        $scope.upcomingAuctions.splice(toIndex, 0, moved[0]);
+    };    
+    
     $scope.isToday = function(date){
         return moment().diff(date, 'days') <= 0;
     }
@@ -113,7 +119,7 @@ angular.module('app.controllers', [])
             $timeout(function(){ionicMaterialMotion.ripple();}); 
 
             
-                          
+            /*              
             OdooService.changeState('sale.order', "button_confirm", [order.orderid]).then(function(data){ //confirm order
                 console.log(data);
                 OdooService.getData('sale.order', [order.orderid], ["order_line", "id"]).then(function(data){ //invoice order
@@ -138,6 +144,7 @@ angular.module('app.controllers', [])
                 })
                 
             });
+            */
         });
         console.log({product:auctionItem, result:auctionResult});
         console.log($scope.user);
@@ -164,7 +171,14 @@ angular.module('app.controllers', [])
     };    
     
     $scope.saveAuction = function(){
-        if ($scope.currentAuctionItem.length < 1 || !$scope.auctionResult.quantity || !$scope.auctionResult.price || !$scope.auctionResult.buyer){return;}
+        if ($scope.currentAuctionItem.length < 1 || !$scope.auctionResult.quantity || !$scope.auctionResult.price || !$scope.auctionResult.buyer){
+            $ionicPopup.alert({
+                title: 'Error',
+                template: 'You did not fill out all the fields'
+            });           
+            
+            
+            return;}
         
         
         $scope.auctionResult.date = new Date();

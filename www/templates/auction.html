@@ -1,13 +1,10 @@
 <ion-view view-title="Manawatu Flowers - Auction">
-  <ion-content>
+  <ion-content scroll="false">
 
-    <ion-refresher
-    pulling-text="Pull to refresh..."
-    on-refresh="doRefresh()">
-    </ion-refresher>
 
       <div class="row responsive-md">
         <div class="col col-33 upcoming">
+            <div class="top-part">
               <h3>Upcoming Auctions</h3>           
             <div class="list">
             <li class="item item-checkbox">
@@ -17,17 +14,20 @@
                  Auto load auctions sequentially
               </li>   
             </div>
-            <ion-list class="list animate-ripple">
-              <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="upcomingAuction in upcomingAuctions" ng-if="upcomingAuction.qty_available > 0" ng-show="!upcomingAuction.hideItem" ng-click="loadAuction(upcomingAuction)" type="item-text-wrap">
-                  <img class="stock-thumbnail" ng-if="upcomingAuction.image_small" ng-src="data:image/jpg;base64,{{upcomingAuction.image_small | no_false}}">
-                    <h2>{{upcomingAuction.name}}</h2>
-                    <p>{{upcomingAuction.qty_available_text}}</p>
-                    <i class="icon ion-chevron-right icon-accessory"></i>
-                <ion-option-button class="button-assertive" ng-click="upcomingAuction.hideItem = true">
-                  Hide
-                </ion-option-button>
-              </ion-item>
-            </ion-list>        
+            </div>
+              <ion-scroll direction="y" class="independant-scroll upcoming-scroll" delegate-handle="upcomingScroll">
+                <ion-list class="list animate-ripple " sortable draggable="ion-item" sorted="onReorder($fromIndex, $toIndex)">
+                  <ion-item class="item-remove-animate item-avatar item-icon-right upcoming-item" ng-repeat="upcomingAuction in upcomingAuctions" ng-if="upcomingAuction.qty_available > 0" ng-show="!upcomingAuction.hideItem" ng-click="loadAuction(upcomingAuction)" type="item-text-wrap">
+                      <img class="stock-thumbnail" ng-if="upcomingAuction.image_small" ng-src="data:image/jpg;base64,{{upcomingAuction.image_small | no_false}}">
+                        <h2>{{upcomingAuction.name}}</h2>
+                        <p>{{upcomingAuction.qty_available_text}}</p>
+                        <i class="icon ion-chevron-right icon-accessory"></i>
+                    <ion-option-button class="button-assertive" ng-click="upcomingAuction.hideItem = true">
+                      Hide
+                    </ion-option-button>
+                  </ion-item>
+                </ion-list>   
+              </ion-scroll>
    
         </div>
         <div class="col current-previous">
@@ -84,17 +84,19 @@
             <div class="row">
                 <div class="col previous">
                     <h3>Previous Auctions</h3> <button class="button button-small button-flat button-energized send-btn" ng-disabled="partners.length < 1" ng-click="sendResults()" >Send Results</button>
-                    <ion-list class="list animate-ripple">
-                      <ion-item class="item-remove-animate item-avatar" ng-repeat="previousAuction in previousAuctions.slice().reverse()" ng-show="!hideItem" type="item-text-wrap" ng-click="viewPreviousAuction(previousAuction)" ng-class="{'is-today':isToday(previousAuction.date)}">
-                        <img class="stock-thumbnail" ng-if="previousAuction.product.image_small" ng-src="data:image/jpg;base64,{{previousAuction.product.image_small | no_false}}">
-                        <h2>{{previousAuction.product.name}}</h2>
-                        <p>{{previousAuction.result.quantity}} For {{previousAuction.result.price | currency}}</p>
+                    <ion-scroll direction="y" class="independant-scroll previous-scroll" delegate-handle="previousScroll">
+                        <ion-list class="list animate-ripple">
+                          <ion-item class="item-remove-animate item-avatar" ng-repeat="previousAuction in previousAuctions.slice().reverse()" ng-show="!hideItem" type="item-text-wrap" ng-click="viewPreviousAuction(previousAuction)" ng-class="{'is-today':isToday(previousAuction.date)}">
+                            <img class="stock-thumbnail" ng-if="previousAuction.product.image_small" ng-src="data:image/jpg;base64,{{previousAuction.product.image_small | no_false}}">
+                            <h2>{{previousAuction.product.name}}</h2>
+                            <p>{{previousAuction.result.quantity}} For {{previousAuction.result.price | currency}}</p>
 
-                        <ion-option-button class="button-assertive" ng-click="hideItem = true">
-                          Hide
-                        </ion-option-button>
-                      </ion-item>
-                    </ion-list>                      
+                            <ion-option-button class="button-assertive" ng-click="hideItem = true">
+                              Hide
+                            </ion-option-button>
+                          </ion-item>
+                        </ion-list>  
+                    </ion-scroll>
                 </div>
             </div>            
         </div>          
